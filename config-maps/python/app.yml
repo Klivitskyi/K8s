@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python
+  template:
+    metadata:
+      labels:
+        app: python
+    spec:
+      containers:
+      - name: python
+        image: ivanklivitskyi/python-test:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        env:
+          - name: ENV_VAR
+            valueFrom:
+              configMapKeyRef:
+                name: env-config
+                key: ENV_VAR
+          - name: IMAGE_PATH
+            valueFrom:
+              configMapKeyRef:
+                name: env-config
+                key: IMAGE_PATH
+        volumeMounts:
+          - name: image-volume
+            mountPath: "mnt/config"
+      volumes:
+        - name: image-volume
+          configMap:
+            name: env-config
