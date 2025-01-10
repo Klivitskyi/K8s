@@ -1,0 +1,19 @@
+kubectl create serviceaccount test-user
+
+kubectl create token test-user --duration=24h
+
+---
+
+kubectl get secret test-user-secret -o yaml | yq .data.token | base64 -d
+
+kubectl auth can-i list pods --as=system:serviceaccount:default:test-user
+
+
+
+
+kubectl config set-credentials test-user --token=
+
+kubectl config set-context test-user-context \
+    --cluster= \
+    --namespace=default \
+    --user=test-user
