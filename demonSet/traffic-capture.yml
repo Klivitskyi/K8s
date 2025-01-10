@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: traffic-capture
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: traffic-capture
+  template:
+    metadata:
+      labels:
+        app: traffic-capture
+    spec:
+      hostNetwork: true
+      containers:
+      - name: traffic-capture
+        image: ubuntu:latest
+        securityContext:
+          privileged: true
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            apt-get update && apt-get install -y tcpdump;
+            tcpdump -i any
+        volumeMounts:
+        - name: host-sys
+          mountPath: /sys
+        - name: host-proc
+          mountPath: /proc
+      volumes:
+      - name: host-sys
+        hostPath:
+          path: /sys
+      - name: host-proc
+        hostPath:
+          path: /proc
