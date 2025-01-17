@@ -1,0 +1,35 @@
+kubectl -n vault exec -it vault-0 -- vault secrets enable database
+
+vault write database/config/postgresdb \
+    plugin_name=postgresql-database-plugin \
+    allowed_roles="sql-role" \
+    connection_url="postgresql://{{username}}:{{password}}@postgres-0.postgres-svc.default.svc.cluster.local:5432/testdb?sslmode=disable" \
+    username="root" \
+    password="ASDQ213c"
+
+
+ vault write database/roles/sql-role \
+    db_name=postgresdb \
+    creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; \
+        GRANT SELECT ON ALL TABLES IN SCHEMA information_schema TO \"{{name}}\";" \
+    default_ttl="1h" \
+    max_ttl="24h"
+
+
+cat <<EOF > /home/vault/postgres-app-policy.hcl
+path "database/creds/sql-role" {
+  capabilities = ["read"]
+}
+EOF
+
+vault policy write postgres-app-policy /home/vault/postgres-app-policy.hcl
+
+vault write auth/kubernetes/role/sql-role \
+   bound_service_account_names=dynamic-postgres \
+   bound_service_account_namespaces=vault,default \
+   policies=postgres-app-policy \
+   ttl=1h
+
+TEST
+
+vault read database/creds/sql-role

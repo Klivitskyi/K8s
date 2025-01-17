@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pode-affinity-example
+  labels:
+    name: demo2
+spec:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              name: demo 
+          topologyKey: "kubernetes.io/hostname" # "topology.kubernetes.io/zone"; "topology.kubernetes.io/region"
+  containers:
+  - name: nginx
+    image: nginx
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"

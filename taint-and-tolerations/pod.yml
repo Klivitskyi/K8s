@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tolerations-example
+  labels:
+    name: demo
+spec:
+  tolerations:
+    - key: "key1"
+      operator: Equal
+      value: "value1"
+      effect: "NoSchedule"
+      #tolerationSeconds: 300 - for NoExecute
+  containers:
+  - name: nginx
+    image: nginx
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"

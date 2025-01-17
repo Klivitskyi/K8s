@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: node-affinity-example
+  labels:
+    name: demo
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: test
+                operator: In # Notin; Exists; DoesNotExist; Gt; Lt; Equal
+                values:
+                - "Yes"
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1 # 1 - 100
+        preference:
+          matchExpressions:
+            - key: here
+              operator: Exists
+  containers:
+  - name: nginx
+    image: nginx
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
