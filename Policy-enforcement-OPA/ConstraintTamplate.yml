@@ -1,0 +1,31 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8sdenyimages
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sDenyImages
+      validation:
+        openAPIV3Schema:
+          properties:
+            deniedImages:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sdenyimages
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+
+          some i
+          deniedImages := input.parameters.deniedImages
+          container := input.review.object.spec.containers[i]
+          container.image == deniedImages[_]
+          
+          msg := sprintf("Image '%s' is not allowed", [container.image])
+        }

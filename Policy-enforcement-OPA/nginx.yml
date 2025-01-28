@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-example
+  labels:
+    test: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.21.0
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
